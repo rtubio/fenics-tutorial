@@ -17,7 +17,7 @@ virtualenv --python "$PYENV_VERSION" "$PYENV_DIR"
 source "$PYENV_ACTIVATE"
 
 [[ -f "$CONF_PYPKS" ]] && {
-    pip install -r "$CONF_PYPKS" --upgrade
+    pip install -r "$CONF_PYPKS"
 } || {
     echo "No <$CONF_PYPKS> available, skipping PYTHON packages installation"
 }
@@ -30,7 +30,7 @@ source "$PYENV_ACTIVATE"
 }
 
 echo "### (3) Configuring FENICS"
-FENICS_VERSION=$(python -c"import ffc; print(ffc.__version__)") && \\
+FENICS_VERSION=$(python -c"import ffc; print(ffc.__version__)") && \
     echo ">> FENICS_VERSION = $FENICS_VERSION"
 cd "$SRCBUILD_DIR"
 
