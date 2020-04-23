@@ -12,16 +12,61 @@ Test problem is chosen to give an exact solution at all nodes of the mesh.
 
 from __future__ import print_function
 from fenics import *
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.tri as tri
 import numpy as np
 
-T = 2.0            # final time
-num_steps = 10     # number of time steps
+
+def mesh2triang(mesh):
+
+    xy = mesh.coordinates()
+    return tri.Triangulation(xy[:, 0], xy[:, 1], mesh.cells())
+
+def _plot(ax, obj):
+
+    plt.gca().set_aspect('equal')
+    if isinstance(obj, Function):
+        mesh = obj.function_space().mesh()
+        if (mesh.geometry().dim() != 2):
+            raise(AttributeError)
+        if obj.vector().size() == mesh.num_cells():
+            C = obj.vector().array()
+            ax.tripcolor(mesh2triang(mesh), C)
+        else:
+            C = obj.compute_vertex_values(mesh)
+            ax.tripcolor(mesh2triang(mesh), C, shading='gouraud')
+    elif isinstance(obj, Mesh):
+        if (obj.geometry().dim() != 2):
+            raise(AttributeError)
+        ax.triplot(mesh2triang(obj), color='k')
+
+
+T = 32.0           # final time
+num_steps = 16     # number of time steps
 dt = T / num_steps # time step size
 alpha = 3          # parameter alpha
 beta = 1.2         # parameter beta
 
 # Create mesh and define function space
 nx = ny = 8
+
+cols = 4
+rows = int(num_steps / cols)
+mpl.rcParams.update({'font.size': 8})
+fig, axs = plt.subplots(cols, rows, dpi=300, figsize=(11, 8))
+fig.suptitle("Heat Simulation")
+topSpace=0.925
+bottomSpace=0.0925
+rightSpace=0.940
+leftSpace=0.075
+wspace=0.0
+hspace=0.0
+fig.subplots_adjust(
+  top=topSpace, bottom=bottomSpace, right=rightSpace, left=leftSpace,
+  wspace=wspace, hspace=hspace
+)
+
 mesh = UnitSquareMesh(nx, ny)
 V = FunctionSpace(mesh, 'P', 1)
 
@@ -49,8 +94,10 @@ a, L = lhs(F), rhs(F)
 # Time-stepping
 u = Function(V)
 t = 0
+
 for n in range(num_steps):
 
+    axi = axs[int(n / cols), np.remainder(n, cols)]
     # Update current time
     t += dt
     u_D.t = t
@@ -59,15 +106,17 @@ for n in range(num_steps):
     solve(a == L, u, bc)
 
     # Plot solution
-    plot(u)
+    _plot(axi, u)
+    # axi.triplot(u)
 
     # Compute error at vertices
-    u_e = interpolate(u_D, V)
-    error = np.abs(u_e.vector().array() - u.vector().array()).max()
-    print('t = %.2f: error = %.3g' % (t, error))
+    # u_e = interpolate(u_D, V)
+    # error = np.abs(u_e.vector().array() - u.vector().array()).max()
+    # print('t = %.2f: error = %.3g' % (t, error))
 
     # Update previous solution
     u_n.assign(u)
 
 # Hold plot
-interactive()
+# interactive()
+plt.show()

@@ -1,3 +1,6 @@
+src/.fenics/
+.tmp/
+
 # doconce files:
 *.rst
 *.ipynb
