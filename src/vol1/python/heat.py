@@ -6,73 +6,34 @@ Test problem is chosen to give an exact solution at all nodes of the mesh.
   u = u_D             on the boundary
   u = u_0             at t = 0
 
-  u = 1 + x^2 + alpha*y^2 + \beta*t
+  u = 1 + x^2 + alpha*y^2 + beta*t
   f = beta - 2 - 2*alpha
 """
 
 from __future__ import print_function
-from fenics import *
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.tri as tri
+from dolfin import *
 import numpy as np
 
 
-def mesh2triang(mesh):
-
-    xy = mesh.coordinates()
-    return tri.Triangulation(xy[:, 0], xy[:, 1], mesh.cells())
-
-def _plot(ax, obj):
-
-    plt.gca().set_aspect('equal')
-    if isinstance(obj, Function):
-        mesh = obj.function_space().mesh()
-        if (mesh.geometry().dim() != 2):
-            raise(AttributeError)
-        if obj.vector().size() == mesh.num_cells():
-            C = obj.vector().array()
-            ax.tripcolor(mesh2triang(mesh), C)
-        else:
-            C = obj.compute_vertex_values(mesh)
-            ax.tripcolor(mesh2triang(mesh), C, shading='gouraud')
-    elif isinstance(obj, Mesh):
-        if (obj.geometry().dim() != 2):
-            raise(AttributeError)
-        ax.triplot(mesh2triang(obj), color='k')
-
-
-T = 32.0           # final time
-num_steps = 16     # number of time steps
-dt = T / num_steps # time step size
-alpha = 3          # parameter alpha
-beta = 1.2         # parameter beta
+T           = 32.0          # final time
+num_steps   = 160           # number of time steps
+dt          = T / num_steps # time step size
+alpha       = 0.3           # parameter alpha
+beta        = 0.0625        # parameter beta
+theta       = 0.125         # parameter theta
 
 # Create mesh and define function space
-nx = ny = 8
+nx = ny = nz = 8
 
-cols = 4
-rows = int(num_steps / cols)
-mpl.rcParams.update({'font.size': 8})
-fig, axs = plt.subplots(cols, rows, dpi=300, figsize=(11, 8))
-fig.suptitle("Heat Simulation")
-topSpace=0.925
-bottomSpace=0.0925
-rightSpace=0.940
-leftSpace=0.075
-wspace=0.0
-hspace=0.0
-fig.subplots_adjust(
-  top=topSpace, bottom=bottomSpace, right=rightSpace, left=leftSpace,
-  wspace=wspace, hspace=hspace
-)
-
-mesh = UnitSquareMesh(nx, ny)
+mesh = UnitCubeMesh(nx, ny, nz)
 V = FunctionSpace(mesh, 'P', 1)
 
 # Define boundary condition
-u_D = Expression('1 + x[0]*x[0] + alpha*x[1]*x[1] + beta*t',
-                 degree=2, alpha=alpha, beta=beta, t=0)
+u_D = Expression(
+    '1 + x[0]*x[0] + alpha*x[1]*x[1] + theta*x[2]*x[2] + beta*t',
+    # '1 + beta*t',
+    degree=2, alpha=alpha, theta=theta, beta=beta, t=0
+)
 
 def boundary(x, on_boundary):
     return on_boundary
@@ -81,7 +42,7 @@ bc = DirichletBC(V, u_D, boundary)
 
 # Define initial value
 u_n = interpolate(u_D, V)
-#u_n = project(u_D, V)
+# u_n = project(u_D, V)
 
 # Define variational problem
 u = TrialFunction(V)
@@ -94,10 +55,10 @@ a, L = lhs(F), rhs(F)
 # Time-stepping
 u = Function(V)
 t = 0
+vtkfile = File('heat/solution_3D.pvd')
 
 for n in range(num_steps):
 
-    axi = axs[int(n / cols), np.remainder(n, cols)]
     # Update current time
     t += dt
     u_D.t = t
@@ -106,8 +67,9 @@ for n in range(num_steps):
     solve(a == L, u, bc)
 
     # Plot solution
-    _plot(axi, u)
+    # plot(u)
     # axi.triplot(u)
+    vtkfile << u
 
     # Compute error at vertices
     # u_e = interpolate(u_D, V)
@@ -117,6 +79,18 @@ for n in range(num_steps):
     # Update previous solution
     u_n.assign(u)
 
+# Compute error in L2 norm
+error_L2 = errornorm(u_D, u, 'L2')
+
+# Compute maximum error at vertices
+vertex_values_u_D = u_D.compute_vertex_values(mesh)
+vertex_values_u = u.compute_vertex_values(mesh)
+error_max = np.max(np.abs(vertex_values_u_D - vertex_values_u))
+
+# Print errors
+print('error_L2  =', error_L2)
+print('error_max =', error_max)
+
 # Hold plot
 # interactive()
-plt.show()
+# plt.show()
