@@ -2,3 +2,4 @@ fenics
 libmpfr-dev
 libgmp-dev
 paraview
+pybind11-dev

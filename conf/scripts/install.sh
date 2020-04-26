@@ -32,16 +32,16 @@ source "$PYENV_ACTIVATE"
 ### Move to the source build dir to build the required libraries (dolfin, pybind, mshr)
 cd "$SRCBUILD_DIR"
 
-echo "### (2) Pybind 11"
-PYBIND11_VERSION=2.2.3
-PYBIND11_TARGZ="$SRCBUILD_DIR/pybind11-$PYBIND11_VERSION.tar.gz"
-wget -nc --quiet\
-    "https://github.com/pybind/pybind11/archive/v${PYBIND11_VERSION}.tar.gz"\
-    -O "$PYBIND11_TARGZ"
-
-tar -xf "$PYBIND11_TARGZ" && cd pybind11-${PYBIND11_VERSION}
-mkdir build
-cd build && cmake -DPYBIND11_TEST=off .. && sudo make install && cd ../..
+# echo "### (2) Pybind 11"
+# PYBIND11_VERSION=2.2.3
+# PYBIND11_TARGZ="$SRCBUILD_DIR/pybind11-$PYBIND11_VERSION.tar.gz"
+# wget -nc --quiet\
+#     "https://github.com/pybind/pybind11/archive/v${PYBIND11_VERSION}.tar.gz"\
+#     -O "$PYBIND11_TARGZ"
+# 
+# tar -xf "$PYBIND11_TARGZ" && cd pybind11-${PYBIND11_VERSION}
+# mkdir build
+# cd build && cmake -DPYBIND11_TEST=off .. && sudo make install && cd ../..
 
 echo "### (3) Configuring FENICS"
 FENICS_VERSION=$(python -c"import ffc; print(ffc.__version__)") && \
