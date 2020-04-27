@@ -40,7 +40,7 @@ git clone "$GMSH_URL"
 cd gmsh
 git checkout "tags/$GMSH_TAG"
 mkdir build
-cd build && cmake .. && make && sudo make install && cd ../..
+cd build && cmake -DENABLE_OPENMP=1 .. && sudo make install && cd ../..
 
 # echo "### (2) Pybind 11"
 # PYBIND11_VERSION=2.2.3

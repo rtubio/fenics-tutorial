@@ -24,8 +24,8 @@ theta       = 0.125         # parameter theta
 
 # Create mesh and define function space
 nx = ny = nz = 8
-
 mesh = UnitCubeMesh(nx, ny, nz)
+
 V = FunctionSpace(mesh, 'P', 1)
 
 # Define boundary condition
