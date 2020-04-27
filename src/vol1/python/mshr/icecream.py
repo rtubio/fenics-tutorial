@@ -17,9 +17,11 @@
 #
 
 import dolfin
-from mshr import *
+from mshr import Sphere, Cylinder, CSGCGALDomain3D, generate_mesh
 
 # dolfin.set_log_level(dolfin.TRACE)
+dolfin.set_log_active(True)
+dolfin.set_log_level(4)
 
 # Define 3D geometry
 sphere = Sphere(dolfin.Point(0, 0, 0), 0.5)
@@ -31,7 +33,7 @@ geometry = cone + sphere
 # which can be viewed by eg. MeshLab
 meshing_domain = CSGCGALDomain3D(geometry)
 meshing_domain.remove_degenerate_facets(1e-12)
-# meshing_domain.save_off("icecream.off")
+meshing_domain.save("icecream.off")
 
 # Test printing
 dolfin.info("\nCompact output of 3D geometry:")

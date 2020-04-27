@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "${workspaceFolder}/src/.fenics/bin/python",
+    "python.envFile": "${workspaceFolder}/src/.fenics"
+}

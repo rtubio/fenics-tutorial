@@ -11,13 +11,17 @@ Test problem is chosen to give an exact solution at all nodes of the mesh.
 """
 
 from __future__ import print_function
-from dolfin import *
-from mshr import *
+from dolfin import Point, File,\
+    FunctionSpace, Expression, DirichletBC, Function, TrialFunction, TestFunction, Constant,\
+    interpolate, solve, errornorm, info, set_log_active, set_log_level,\
+    dx, dot, grad, lhs, rhs
+from mshr import Box, CSGCGALDomain3D, CSGCGALMeshGenerator3D
 import numpy as np
+import sys
 
 
 def createStrap(
-    width_1=40.0, width_2=135.0, length_1=40.0, length_2=135.0,
+    width_1=40000.0, width_2=1350.0, length_1=40000.0, length_2=1350.0,
     thickness=1
 ):
 
@@ -58,21 +62,24 @@ alpha       = 0.3           # parameter alpha
 beta        = 0.0625        # parameter beta
 theta       = 0.125         # parameter theta
 
+set_log_active(True)
+set_log_level(4)
+
 msh_file = File('heat/slab_mesh.pvd')
 sol_file = File('heat/slab_solution.pvd')
 
 # Create mesh and define function space
 # mesh = BoxMesh(Point(0., 0., 0.), Point(1., 0.1, 0.04), 60, 10, 5)
-strap = createStrap(thickness=0.25)
+strap = createStrap(thickness=10)
 
 meshing_domain = CSGCGALDomain3D(strap)
 meshing_domain.remove_degenerate_facets(1e-12)
 print(f"Meshing domain created")
 
 gen = CSGCGALMeshGenerator3D()
-gen.parameters["facet_angle"] = 25.0
-gen.parameters["facet_size"] = 1.0
-gen.parameters["edge_size"] = 1.0
+# gen.parameters["facet_angle"] = 25.0
+# gen.parameters["facet_size"] = 0.05
+# gen.parameters["edge_size"] = 0.05
 
 print(f"Started meshing")
 mesh = gen.generate(meshing_domain)
@@ -81,6 +88,11 @@ print(f"Finished meshing")
 # mesh = generate_mesh(strap, 16, "cgal")
 msh_file << mesh
 print(f"Mesh saved!")
+
+print(f"Mesh info:")
+info(mesh)
+
+sys.exit(-1)
 
 V = FunctionSpace(mesh, 'P', 1)
 
