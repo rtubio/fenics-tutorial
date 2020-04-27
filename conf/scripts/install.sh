@@ -7,7 +7,7 @@ echo ">>> Working directory: $CWD"
 
 echo "### (0) Configuring operating system"
 [[ -f "$CONF_DEBPKS" ]] && {
-    sudo apt-get install $(grep -vE "^\s*#" $CONF_DEBPKS | tr "\n" " ")
+    sudo apt install -yyy $(grep -vE "^\s*#" $CONF_DEBPKS | tr "\n" " ")
 } || {
     echo "No <$CONF_DEBPKS> available, skipping OS packages installation"
 }
@@ -31,6 +31,16 @@ source "$PYENV_ACTIVATE"
 
 ### Move to the source build dir to build the required libraries (dolfin, pybind, mshr)
 cd "$SRCBUILD_DIR"
+
+echo "### (2) Cloning Gmsh"
+
+GMSH_TAG="gmsh_4_5_6"
+GMSH_URL="https://gitlab.onelab.info/gmsh/gmsh.git"
+git clone "$GMSH_URL"
+cd gmsh
+git checkout "tags/$GMSH_TAG"
+mkdir build
+cd build && cmake .. && make && sudo make install && cd ../..
 
 # echo "### (2) Pybind 11"
 # PYBIND11_VERSION=2.2.3
@@ -57,11 +67,13 @@ cd dolfin/python && pip install . && cd ../..
 # latest available branch is too old, getting master
 # --branch=$FENICS_VERSION
 echo "### (5) Cloning MSHR"
+MSHR_TAG="$(echo $FENICS_VERSION | sed -e 's/\.post0//g')"
 git clone https://bitbucket.org/fenics-project/mshr
-git checkout "tags/$FENICS_VERSION"
+cd mshr
+git checkout "tags/$MSHR_TAG"
 echo "### (6) Building MSHR"
-mkdir mshr/build
-cd mshr/build && cmake .. && sudo make install && cd ../..
+mkdir build
+cd build && cmake .. && sudo make install && cd ../..
 cd mshr/python   && pip install . && cd ../..
 
 cd "$CWD"

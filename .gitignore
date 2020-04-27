@@ -1,5 +1,6 @@
 src/.fenics/
 .tmp/
+src/.build/
 
 # doconce files:
 *.rst

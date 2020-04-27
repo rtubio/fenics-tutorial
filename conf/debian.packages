@@ -3,3 +3,8 @@ libmpfr-dev
 libgmp-dev
 paraview
 pybind11-dev
+# gmsh      ## Buster version incompatible, need to be 4.2.2+
+# gmsh building dependencies
+libfltk1.3-dev
+libfreetype6-dev
+libocct-*-dev
