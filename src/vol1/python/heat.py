@@ -35,7 +35,6 @@ V = FunctionSpace(mesh, 'P', 1)
 # Define boundary condition
 u_D = Expression(
     '1 + x[0]*x[0] + alpha*x[1]*x[1] + theta*x[2]*x[2] + beta*t',
-    # '1 + beta*t',
     degree=2, alpha=alpha, theta=theta, beta=beta, t=0
 )
 
