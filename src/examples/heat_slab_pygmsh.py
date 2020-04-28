@@ -15,7 +15,6 @@ import dolfin
 from dolfin import Point, File,\
     FunctionSpace, Expression, DirichletBC, Function, TrialFunction, TestFunction, Constant,\
     interpolate, solve, errornorm, info,\
-    UnitCubeMesh,\
     dx, dot, grad, lhs, rhs
 import meshio
 import pygmsh

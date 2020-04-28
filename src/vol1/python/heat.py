@@ -11,7 +11,11 @@ Test problem is chosen to give an exact solution at all nodes of the mesh.
 """
 
 from __future__ import print_function
-from dolfin import *
+from dolfin import Point, File,\
+    FunctionSpace, Expression, DirichletBC, Function, TrialFunction, TestFunction, Constant,\
+    interpolate, solve, errornorm, info,\
+    UnitCubeMesh,\
+    dx, dot, grad, lhs, rhs
 import numpy as np
 
 
