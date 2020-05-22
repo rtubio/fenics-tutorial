@@ -43,7 +43,7 @@ def createStrap(
 ):
 
     geom = pygmsh.opencascade.Geometry(
-        characteristic_length_min=min_size,
+        characteristic_length_min=min_size,f
         characteristic_length_max=max_size
     )
 
